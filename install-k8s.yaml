@@ -1,0 +1,52 @@
+---
+- hosts: all
+  name: install docker and kubernetes
+  tasks:
+    - name: update repo and install repo
+      sudo: true
+      apt: 
+        name: "{{item}}"
+        update_cache: yes 
+      with_items:
+        - apt-transport-https 
+        - ca-certificates 
+        - curl 
+        - software-properties-common
+        - vim
+    - name: Add Docker’s official GPG key
+      sudo: true
+      apt_key:
+        id: 0EBFCD88
+        url: "https://download.docker.com/linux/ubuntu/gpg"
+        state: present
+    - name: Add repo 
+      sudo: true
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+        state: present
+      ignore_errors: true
+    - name: install docker
+      sudo: true
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+    - name: add apt-key kubernetes
+      sudo: true
+      apt_key:
+        url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+        state: present
+    - name: add repo of kubernetes
+      sudo: true
+      shell: echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list  
+
+    - name: install kubeadm kubelet
+      sudo: true
+      apt:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      with_items:
+        - kubeadm
+        - kubelet
+
